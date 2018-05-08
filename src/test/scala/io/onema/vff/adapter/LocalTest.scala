@@ -11,13 +11,14 @@
 package io.onema.vff.adapter
 
 import better.files.File
+import io.onema.vff.Filesystem
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
 
 class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {
 
-  val adapter = new Local
+  val fs = new Filesystem(new Local)
   val path01 = "/tmp/vff/test.txt"
   val path02 = "/tmp/vff/foo.txt"
   val path03 = "/tmp/vff/bar.txt"
@@ -36,7 +37,7 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     val file = File(path01).createIfNotExists(createParents = true)
 
     // Act
-    val result = adapter.update("/tmp/vff/test.txt", content)
+    val result = fs.update("/tmp/vff/test.txt", content)
 
     // Assert
     result should be (true)
@@ -49,7 +50,7 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     val content: String = "foo bar baz"
 
     // Act
-    val result = adapter.update("/tmp/vff/test.txt", content)
+    val result = fs.update("/tmp/vff/test.txt", content)
 
     // Assert
     result should be (false)
@@ -61,7 +62,7 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     val file = File(path01).createIfNotExists(createParents = true)
 
     // Act
-    val result = adapter.delete("/tmp/vff/test.txt")
+    val result = fs.delete("/tmp/vff/test.txt")
 
     // Assert
     result should be (true)
@@ -71,7 +72,7 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
   "A file Delete a non existing file" should "return false" in {
 
     // Arrange - Act
-    val result = adapter.delete("/tmp/vff/test.txt")
+    val result = fs.delete("/tmp/vff/test.txt")
 
     // Assert
     result should be (false)
@@ -88,7 +89,7 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     File(path05).createIfNotExists(createParents = true)
 
     // Act
-    val result = adapter.listContents("/tmp/vff")
+    val result = fs.adapter.listContents("/tmp/vff")
 
     // Assert
     result.foreach(x => {
@@ -107,7 +108,7 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     File(path05).createIfNotExists(createParents = true)
 
     // Act
-    val result = adapter.listContents("/tmp/vff", recursive = true)
+    val result = fs.listContents("/tmp/vff", recursive = true)
 
     // Assert
     result.foreach(x => {
@@ -121,7 +122,7 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     File(path01).createIfNotExists(createParents = true)
 
     // Act
-    val result = adapter.has(path01)
+    val result = fs.has(path01)
 
     // Assert
     result should be (true)
@@ -130,7 +131,7 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
   "Has" should "return false if a file does not exist" in {
 
     // Arrange - Act
-    val result = adapter.has(path01)
+    val result = fs.has(path01)
 
     // Assert
     result should be (false)
@@ -139,12 +140,12 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
   "Copy" should "duplicate a file" in {
 
     // Arrange
-    adapter.write(path01, "foo bar baz")
+    fs.write(path01, "foo bar baz")
 
     // Act
-    val result = adapter.copy(path01, path02)
-    val path01Contents = adapter.read(path01)
-    val path02Contents = adapter.read(path02)
+    val result = fs.copy(path01, path02)
+    val path01Contents = fs.read(path01)
+    val path02Contents = fs.read(path02)
 
     // Assert
     result should be (true)
@@ -154,7 +155,7 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
   "Write" should "add content to a new file" in {
 
     // Arrange - Act
-    val result = adapter.write(path01, "foo bar baz")
+    val result = fs.write(path01, "foo bar baz")
     val path01Contents = File(path01).contentAsString
 
     // Assert
@@ -165,10 +166,10 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
   "Read" should "get the contents from an existing file" in {
 
     // Arrange
-    val result = adapter.write(path01, "foo bar baz")
+    val result = fs.write(path01, "foo bar baz")
 
     // Act
-    val path01Contents = adapter.read(path01)
+    val path01Contents = fs.read(path01)
 
     // Assert
     path01Contents.getOrElse("This is not the correct String") should be ("foo bar baz")
@@ -180,12 +181,12 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     File(path01).createIfNotExists(createParents = true)
 
     // Act
-    val result = adapter.rename(path01, path02)
+    val result = fs.rename(path01, path02)
 
     // Assert
     result should be (true)
-    adapter.has(path01) should be (false)
-    adapter.has(path02) should be (true)
+    fs.has(path01) should be (false)
+    fs.has(path02) should be (true)
 
   }
 }

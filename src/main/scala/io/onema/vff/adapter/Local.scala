@@ -14,6 +14,7 @@ package io.onema.vff.adapter
 import better.files._
 import com.typesafe.scalalogging.Logger
 
+import scala.io.Source.fromInputStream
 import scala.util.{Failure, Success, Try}
 
 object Local {
@@ -35,7 +36,17 @@ class Local extends Adapter {
   /**
     * Read a file
     */
-  override def read(path: String): Option[String] = if(has(path)) Some(File(path).contentAsString) else None
+  override def readStream(path: String): Stream[Char] = {
+    if(has(path)) {
+      fromInputStream(File(path).newFileInputStream).toStream
+    } else "".toStream
+  }
+
+  override def read(path: String): Option[String] = {
+      val fileStream = readStream(path)
+      if(fileStream.nonEmpty) Some(fileStream.mkString)
+      else None
+  }
 
   /**
     * List contents of a directory

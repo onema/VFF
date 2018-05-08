@@ -18,6 +18,7 @@ import io.onema.vff.extensions.StringExtensions._
 
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
+import scala.io.Source.fromInputStream
 
 
 
@@ -57,16 +58,22 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
   /**
     * Read a file
     */
-  override def read(path: String): Option[String] = {
+  override def readStream(path: String): Stream[Char] = {
     if(has(path.ltrim)) {
-      Try(s3.getObjectAsString(bucketName, path.ltrim)) match {
+      Try(s3.getObject(bucketName, path.ltrim).getObjectContent) match {
         case Success(result) =>
-          Some(result)
+          return fromInputStream(result).toStream
         case Failure(ex) =>
           log.debug(s"Unable to read file $path. Exception $ex")
-          None
       }
-    } else None
+    }
+    "".toStream
+  }
+
+  override def read(path: String): Option[String] = {
+    val fileStream = readStream(path)
+    if(fileStream.nonEmpty) Some(fileStream.mkString)
+    else None
   }
 
   /**

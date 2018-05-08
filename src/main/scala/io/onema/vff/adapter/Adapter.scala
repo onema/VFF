@@ -24,6 +24,11 @@ trait Adapter {
   def read(path: String): Option[String]
 
   /**
+    * Read a file and return a stream
+    */
+  def readStream(path: String): Stream[Char]
+
+  /**
     * List contents of a directory
     */
   def listContents(directory: String, recursive: Boolean = false): Seq[String]
