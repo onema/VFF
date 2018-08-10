@@ -6,7 +6,7 @@
   *
   * copyright (c) 2018, Juan Manuel Torres (http://onema.io)
   *
-  * @author Juan Manuel Torres <kinojman@gmail.com>
+  * @author Juan Manuel Torres <software@onema.io>
   */
 
 package io.onema.vff.adapter
@@ -26,7 +26,7 @@ trait Adapter {
   /**
     * Read a file and return a stream
     */
-  def readStream(path: String): Stream[Char]
+  def readStream(path: String): Iterator[String]
 
   /**
     * List contents of a directory
@@ -42,6 +42,11 @@ trait Adapter {
     * Write a new file
     */
   def write(path: String, contents: String): Boolean
+
+  /**
+    * Write a new file from a buffered source
+    */
+  def write(path: String, contents: Iterator[String]): Boolean
 
   /**
     * Update an existing file

@@ -6,19 +6,19 @@
   *
   * copyright (c) 2018, Juan Manuel Torres (http://onema.io)
   *
-  * @author Juan Manuel Torres <kinojman@gmail.com>
+  * @author Juan Manuel Torres <software@onema.io>
   */
 package io.onema.vff.adapter
 
 import better.files.File
-import io.onema.vff.Filesystem
+import io.onema.vff.FileSystem
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
 
 class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {
 
-  val fs = new Filesystem(new Local)
+  val fs = new FileSystem(new Local)
   val path01 = "/tmp/vff/test.txt"
   val path02 = "/tmp/vff/foo.txt"
   val path03 = "/tmp/vff/bar.txt"
@@ -163,6 +163,17 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     path01Contents should be ("foo bar baz")
   }
 
+  "Write a stream" should "add content to a new file" in {
+
+    // Arrange - Act
+    val result = fs.write(path01, List("foo bar baz stream!").toIterator)
+    val path01Contents = File(path01).contentAsString
+
+    // Assert
+    result should be (true)
+    path01Contents should be ("foo bar baz stream!\n")
+  }
+
   "Read" should "get the contents from an existing file" in {
 
     // Arrange
@@ -173,6 +184,19 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
 
     // Assert
     path01Contents.getOrElse("This is not the correct String") should be ("foo bar baz")
+  }
+
+  "ReadStream" should "get and iterator for the contents of an existing file" in {
+
+    // Arrange
+    val result = fs.write(path01, "foo bar baz\nbaz bar foo")
+
+    // Act
+    val path01Contents = fs.readStream(path01)
+
+    // Assert
+    path01Contents.next should be ("foo bar baz")
+    path01Contents.next should be ("baz bar foo")
   }
 
   "Rename" should "change the name of the file" in {

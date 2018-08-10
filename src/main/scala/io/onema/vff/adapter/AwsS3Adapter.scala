@@ -6,7 +6,7 @@
   *
   * copyright (c) 2018, Juan Manuel Torres (http://onema.io)
   *
-  * @author Juan Manuel Torres <kinojman@gmail.com>
+  * @author Juan Manuel Torres <software@onema.io>
   */
 
 package io.onema.vff.adapter
@@ -17,8 +17,8 @@ import com.typesafe.scalalogging.Logger
 import io.onema.vff.extensions.StringExtensions._
 
 import scala.collection.JavaConverters._
-import scala.util.{Failure, Success, Try}
 import scala.io.Source.fromInputStream
+import scala.util.{Failure, Success, Try}
 
 
 
@@ -58,16 +58,16 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
   /**
     * Read a file
     */
-  override def readStream(path: String): Stream[Char] = {
+  override def readStream(path: String): Iterator[String] = {
     if(has(path.ltrim)) {
       Try(s3.getObject(bucketName, path.ltrim).getObjectContent) match {
         case Success(result) =>
-          return fromInputStream(result).toStream
+          return fromInputStream(result).getLines()
         case Failure(ex) =>
           log.debug(s"Unable to read file $path. Exception $ex")
       }
     }
-    "".toStream
+    List[String]().toIterator
   }
 
   override def read(path: String): Option[String] = {
@@ -105,6 +105,15 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
         false
     }
   }
+
+  /**
+    * Write a new file from a buffered source
+    */
+  def write(path: String, contents: Iterator[String]): Boolean = {
+    // TODO: Use the S3 API to write the buffered source to s3 directly
+    write(path, contents.mkString)
+  }
+
 
   /**
     * Update an existing file

@@ -6,7 +6,7 @@
   *
   * copyright (c) 2018, Juan Manuel Torres (http://onema.io)
   *
-  * @author Juan Manuel Torres <kinojman@gmail.com>
+  * @author Juan Manuel Torres <software@onema.io>
   */
 
 package io.onema.vff.adapter
@@ -36,10 +36,10 @@ class Local extends Adapter {
   /**
     * Read a file
     */
-  override def readStream(path: String): Stream[Char] = {
+  override def readStream(path: String): Iterator[String] = {
     if(has(path)) {
-      fromInputStream(File(path).newFileInputStream).toStream
-    } else "".toStream
+      fromInputStream(File(path).newFileInputStream).getLines()
+    } else List[String]().toIterator
   }
 
   override def read(path: String): Option[String] = {
@@ -68,6 +68,20 @@ class Local extends Adapter {
     val file = File(path)
     file.createIfNotExists(createParents = true)
     Try(file.overwrite(contents)) match {
+      case Success(_) => true
+      case Failure(ex) =>
+        log.debug(s"Unable to write to path $path. Exception: $ex")
+        false
+    }
+  }
+
+  /**
+    * Write a new file from a buffered source
+    */
+  def write(path: String, contents: Iterator[String]): Boolean = {
+    val file = File(path)
+    file.createIfNotExists(createParents = true)
+    Try(file.printLines(contents)) match {
       case Success(_) => true
       case Failure(ex) =>
         log.debug(s"Unable to write to path $path. Exception: $ex")

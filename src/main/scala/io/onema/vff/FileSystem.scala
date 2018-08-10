@@ -6,19 +6,19 @@
   *
   * copyright (c) 2018, Juan Manuel Torres (http://onema.io)
   *
-  * @author Juan Manuel Torres <kinojman@gmail.com>
+  * @author Juan Manuel Torres <software@onema.io>
   */
 
 package io.onema.vff
 
 import io.onema.vff.adapter.{Adapter, AwsS3Adapter, Local}
 
-object Filesystem {
-  def apply(): Filesystem = new Filesystem(new Local)
-  def s3(bucketName: String): Filesystem = new Filesystem(AwsS3Adapter(bucketName))
+object FileSystem {
+  def apply(): FileSystem = new FileSystem(new Local)
+  def s3(bucketName: String): FileSystem = new FileSystem(AwsS3Adapter(bucketName))
 }
 
-class Filesystem(val adapter: Adapter) {
+class FileSystem(val adapter: Adapter) {
   /**
     * Check if the file exists
     */
@@ -28,6 +28,11 @@ class Filesystem(val adapter: Adapter) {
     * Read a file
     */
   def read(path: String): Option[String] = adapter.read(path)
+
+  /**
+    * Get an Iterator of strings. Equivalent to get lines in a Source
+    */
+  def readStream(path: String): Iterator[String] = adapter.readStream(path)
 
   /**
     * List contents of a directory
@@ -43,6 +48,11 @@ class Filesystem(val adapter: Adapter) {
     * Write a new file
     */
   def write(path: String, contents: String): Boolean = adapter.write(path, contents)
+
+  /**
+    * Write a new file
+    */
+  def write(path: String, contents: Iterator[String]): Boolean = adapter.write(path, contents)
 
   /**
     * Update an existing file

@@ -6,18 +6,18 @@
   *
   * copyright (c) 2018, Juan Manuel Torres (http://onema.io)
   *
-  * @author Juan Manuel Torres <kinojman@gmail.com>
+  * @author Juan Manuel Torres <software@onema.io>
   */
 package io.onema.vff.adapter
 
-import io.onema.vff.Filesystem
+import io.onema.vff.FileSystem
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
 
 class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {
 
-  val fs = new Filesystem(AwsS3Adapter("ones-test-bucket"))
+  val fs = new FileSystem(AwsS3Adapter("ones-test-bucket"))
   val path01 = "/tmp/vff/test.txt"
   val path02 = "/tmp/vff/foo.txt"
   val path03 = "/tmp/vff/bar.txt"
@@ -165,6 +165,17 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     path01Contents.get should be ("foo bar baz")
   }
 
+  "Write a stream" should "add content to a new file" in {
+
+    // Arrange - Act
+    val result = fs.write(path01, List("foo bar baz stream!").toIterator)
+    val path01Contents = fs.read(path01)
+
+    // Assert
+    result should be (true)
+    path01Contents.get should be ("foo bar baz stream!")
+  }
+
   "Read" should "get the contents from an existing file" in {
 
     // Arrange
@@ -175,6 +186,19 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
 
     // Assert
     path01Contents.getOrElse("This is not the correct String") should be ("foo bar baz")
+  }
+
+  "ReadStream" should "get and iterator for the contents of an existing file" in {
+
+    // Arrange
+    val result = fs.write(path01, "foo bar baz\nbaz bar foo")
+
+    // Act
+    val path01Contents = fs.readStream(path01)
+
+    // Assert
+    path01Contents.next should be ("foo bar baz")
+    path01Contents.next should be ("baz bar foo")
   }
 
   "Rename" should "change the name of the file" in {
