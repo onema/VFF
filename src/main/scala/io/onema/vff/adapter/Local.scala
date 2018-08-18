@@ -76,7 +76,7 @@ class Local extends Adapter {
   }
 
   /**
-    * Write a new file from a buffered source
+    * Write a new file using an iterator
     */
   def write(path: String, contents: Iterator[String]): Boolean = {
     val file = File(path)

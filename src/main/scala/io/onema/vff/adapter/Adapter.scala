@@ -44,7 +44,7 @@ trait Adapter {
   def write(path: String, contents: String): Boolean
 
   /**
-    * Write a new file from a buffered source
+    * Write a new file using an iterator
     */
   def write(path: String, contents: Iterator[String]): Boolean
 

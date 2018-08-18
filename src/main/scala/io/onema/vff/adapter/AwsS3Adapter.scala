@@ -11,7 +11,10 @@
 
 package io.onema.vff.adapter
 
+import java.io.{ByteArrayInputStream, InputStream, SequenceInputStream}
+
 import com.amazonaws.regions.Regions
+import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest}
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import com.typesafe.scalalogging.Logger
 import io.onema.vff.extensions.StringExtensions._
@@ -107,11 +110,22 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
   }
 
   /**
-    * Write a new file from a buffered source
+    * Write a new file using an iterator
     */
   def write(path: String, contents: Iterator[String]): Boolean = {
-    // TODO: Use the S3 API to write the buffered source to s3 directly
-    write(path, contents.mkString)
+    val stream: InputStream = new SequenceInputStream({
+      val i = contents map { s => new ByteArrayInputStream(s.getBytes("UTF-8")) }
+      i.asJavaEnumeration
+    })
+    val request = new PutObjectRequest(bucketName, path.ltrim, stream, new ObjectMetadata())
+    Try(s3.putObject(request)) match {
+      case Success(response) =>
+        log.debug(s"File successfully uploaded to $bucketName with key $path")
+        true
+      case Failure(ex) =>
+        log.debug(s"Unable to write path $path. Exception: $ex")
+        false
+    }
   }
 
 
