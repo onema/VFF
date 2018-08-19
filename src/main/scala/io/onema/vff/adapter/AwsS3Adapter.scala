@@ -11,15 +11,17 @@
 
 package io.onema.vff.adapter
 
-import java.io.{ByteArrayInputStream, InputStream, SequenceInputStream}
+import java.io.{ByteArrayInputStream, InputStream, OutputStream, SequenceInputStream}
 
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest}
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import com.typesafe.scalalogging.Logger
+import io.onema.vff.extensions.StreamExtensions._
 import io.onema.vff.extensions.StringExtensions._
 
 import scala.collection.JavaConverters._
+import scala.io.BufferedSource
 import scala.io.Source.fromInputStream
 import scala.util.{Failure, Success, Try}
 
@@ -61,22 +63,16 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
   /**
     * Read a file
     */
-  override def readStream(path: String): Iterator[String] = {
+  override def read(path: String): Option[InputStream] = {
     if(has(path.ltrim)) {
       Try(s3.getObject(bucketName, path.ltrim).getObjectContent) match {
         case Success(result) =>
-          return fromInputStream(result).getLines()
+          return Option(result)
         case Failure(ex) =>
           log.debug(s"Unable to read file $path. Exception $ex")
       }
     }
-    List[String]().toIterator
-  }
-
-  override def read(path: String): Option[String] = {
-    val fileStream = readStream(path)
-    if(fileStream.nonEmpty) Some(fileStream.mkString)
-    else None
+    None
   }
 
   /**
@@ -96,27 +92,10 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
   }
 
   /**
-    * Write a new file
-    */
-  override def write(path: String, contents: String): Boolean = {
-    Try(s3.putObject(bucketName, path.ltrim, contents)) match {
-      case Success(response) =>
-        log.debug(s"File successfully uploaded to $bucketName with key $path")
-        true
-      case Failure(ex) =>
-        log.debug(s"Unable to write path $path. Exception: $ex")
-        false
-    }
-  }
-
-  /**
     * Write a new file using an iterator
     */
-  def write(path: String, contents: Iterator[String]): Boolean = {
-    val stream: InputStream = new SequenceInputStream({
-      val i = contents map { s => new ByteArrayInputStream(s.getBytes("UTF-8")) }
-      i.asJavaEnumeration
-    })
+  def write(path: String, contents: Iterator[Byte]): Boolean = {
+    val stream: InputStream = new ByteArrayInputStream(contents.toArray)
     val request = new PutObjectRequest(bucketName, path.ltrim, stream, new ObjectMetadata())
     Try(s3.putObject(request)) match {
       case Success(response) =>
@@ -128,11 +107,10 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
     }
   }
 
-
   /**
     * Update an existing file
     */
-  override def update(path: String, contents: String): Boolean = {
+  override def update(path: String, contents: Iterator[Byte]): Boolean = {
     if(has(path.ltrim)) {
       write(path.ltrim, contents)
     } else {

@@ -11,6 +11,9 @@
 
 package io.onema.vff.adapter
 
+import io.onema.vff.extensions.StreamExtensions._
+import java.io._
+
 trait Adapter {
 
   /**
@@ -21,12 +24,17 @@ trait Adapter {
   /**
     * Read a file
     */
-  def read(path: String): Option[String]
+  def read(path: String): Option[InputStream]
 
   /**
-    * Read a file and return a stream
+    * Read a file
     */
-  def readStream(path: String): Iterator[String]
+  def readAsString(path: String): Option[String] = read(path).map(is => is.mkString)
+
+  /**
+    * Read a file
+    */
+  def readAsIterator(path: String): Option[Iterator[String]] = read(path).map(is => is.getLines)
 
   /**
     * List contents of a directory
@@ -41,17 +49,22 @@ trait Adapter {
   /**
     * Write a new file
     */
-  def write(path: String, contents: String): Boolean
+  def write(path: String, contents: String): Boolean = write(path, contents.getBytes.toIterator)
 
   /**
-    * Write a new file using an iterator
+    * Write a new file using an InputStream
     */
-  def write(path: String, contents: Iterator[String]): Boolean
+  def write(path: String, contents: Iterator[Byte]): Boolean
 
   /**
     * Update an existing file
     */
-  def update(path: String, contents: String): Boolean
+  def update(path: String, contents: Iterator[Byte]): Boolean
+
+  /**
+    * Update an existing file
+    */
+  def update(path: String, contents: String): Boolean = update(path, contents.getBytes.toIterator)
 
   /**
     * Rename a file

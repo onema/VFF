@@ -11,6 +11,7 @@
 package io.onema.vff.adapter
 
 import io.onema.vff.FileSystem
+import io.onema.vff.extensions.StreamExtensions._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
@@ -43,7 +44,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
 
     // Assert
     result should be (true)
-    val result2 = fs.read(path01).get
+    val result2 = fs.read(path01).get.mkString
     result2 should be (content)
   }
 
@@ -146,8 +147,8 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
 
     // Act
     val result = fs.copy(path01, path02)
-    val path01Contents = fs.read(path01)
-    val path02Contents = fs.read(path02)
+    val path01Contents = fs.read(path01).get.mkString
+    val path02Contents = fs.read(path02).get.mkString
 
     // Assert
     result should be (true)
@@ -158,22 +159,11 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
 
     // Arrange - Act
     val result = fs.write(path01, "foo bar baz")
-    val path01Contents = fs.read(path01)
+    val path01Contents = fs.read(path01).get.mkString
 
     // Assert
     result should be (true)
-    path01Contents.get should be ("foo bar baz")
-  }
-
-  "Write a stream" should "add content to a new file" in {
-
-    // Arrange - Act
-    val result = fs.write(path01, List("foo bar baz stream!").toIterator)
-    val path01Contents = fs.read(path01)
-
-    // Assert
-    result should be (true)
-    path01Contents.get should be ("foo bar baz stream!")
+    path01Contents should be ("foo bar baz")
   }
 
   "Read" should "get the contents from an existing file" in {
@@ -182,19 +172,19 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     val result = fs.write(path01, "foo bar baz")
 
     // Act
-    val path01Contents = fs.read(path01)
+    val path01Contents = fs.readAsString(path01)
 
     // Assert
     path01Contents.getOrElse("This is not the correct String") should be ("foo bar baz")
   }
 
-  "ReadStream" should "get and iterator for the contents of an existing file" in {
+  "Read Iterator" should "get and iterator for the contents of an existing file" in {
 
     // Arrange
     val result = fs.write(path01, "foo bar baz\nbaz bar foo")
 
     // Act
-    val path01Contents = fs.readStream(path01)
+    val path01Contents = fs.read(path01).get.getLines
 
     // Assert
     path01Contents.next should be ("foo bar baz")

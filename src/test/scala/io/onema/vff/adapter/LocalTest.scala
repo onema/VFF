@@ -12,18 +12,23 @@ package io.onema.vff.adapter
 
 import better.files.File
 import io.onema.vff.FileSystem
+import io.onema.vff.extensions.StreamExtensions._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
 
 class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {
 
-  val fs = new FileSystem(new Local)
-  val path01 = "/tmp/vff/test.txt"
-  val path02 = "/tmp/vff/foo.txt"
-  val path03 = "/tmp/vff/bar.txt"
-  val path04 = "/tmp/vff/BAZ/baz.txt"
-  val path05 = "/tmp/vff/BLAH/BLAH/blah.txt"
+  private val fs = new FileSystem(new Local)
+  private val path01 = "/tmp/vff/test.txt"
+  private val path02 = "/tmp/vff/foo.txt"
+  private val path03 = "/tmp/vff/bar.txt"
+  private val path04 = "/tmp/vff/BAZ/baz.txt"
+  private val path05 = "/tmp/vff/BLAH/BLAH/blah.txt"
+  private val resourcesPath = getClass.getResource("/").getPath
+  private val imagePath01 = s"${resourcesPath}robot.png"
+  private val imagePath02 = s"${resourcesPath}robo-copy.png"
+  private val imagePath03 = s"${resourcesPath}robot-head.png"
 
   after {
     File("/tmp/vff/").delete(true)
@@ -144,8 +149,8 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
 
     // Act
     val result = fs.copy(path01, path02)
-    val path01Contents = fs.read(path01)
-    val path02Contents = fs.read(path02)
+    val path01Contents = fs.read(path01).get.mkString
+    val path02Contents = fs.read(path02).get.mkString
 
     // Assert
     result should be (true)
@@ -163,40 +168,32 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     path01Contents should be ("foo bar baz")
   }
 
-  "Write a stream" should "add content to a new file" in {
-
-    // Arrange - Act
-    val result = fs.write(path01, List("foo bar baz stream!").toIterator)
-    val path01Contents = File(path01).contentAsString
-
-    // Assert
-    result should be (true)
-    path01Contents should be ("foo bar baz stream!\n")
-  }
-
   "Read" should "get the contents from an existing file" in {
 
     // Arrange
     val result = fs.write(path01, "foo bar baz")
 
     // Act
-    val path01Contents = fs.read(path01)
+    val path01Contents = fs.read(path01).get.mkString
 
     // Assert
-    path01Contents.getOrElse("This is not the correct String") should be ("foo bar baz")
+    path01Contents should be ("foo bar baz")
   }
 
   "ReadStream" should "get and iterator for the contents of an existing file" in {
 
     // Arrange
-    val result = fs.write(path01, "foo bar baz\nbaz bar foo")
+    val contents =
+      """"foo bar baz
+         |baz bar foo"""".stripMargin
+    val result = fs.write(path01, contents)
 
     // Act
-    val path01Contents = fs.readStream(path01)
+    val path01Contents = fs.read(path01).get.getLines
 
     // Assert
-    path01Contents.next should be ("foo bar baz")
-    path01Contents.next should be ("baz bar foo")
+    path01Contents.next should be ("\"foo bar baz")
+    path01Contents.next should be ("baz bar foo\"")
   }
 
   "Rename" should "change the name of the file" in {
@@ -212,5 +209,23 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     fs.has(path01) should be (false)
     fs.has(path02) should be (true)
 
+  }
+
+  "Image" should "be copied correctly" in {
+
+    // Arrange
+    val image = fs.read(imagePath01).get
+
+    // Act
+    val result = fs.write(imagePath02, image.toBytes)
+    val copyResult = fs.copy(imagePath02, imagePath03)
+
+    // Assert
+    result should be (true)
+    copyResult should be (true)
+    fs.has(imagePath02) should be (true)
+    fs.has(imagePath03) should be (true)
+    fs.delete(imagePath02)
+    fs.delete(imagePath03)
   }
 }

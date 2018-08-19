@@ -13,6 +13,8 @@ package io.onema.vff
 
 import io.onema.vff.adapter.{Adapter, AwsS3Adapter, Local}
 
+import java.io._
+
 object FileSystem {
   def apply(): FileSystem = new FileSystem(new Local)
   def s3(bucketName: String): FileSystem = new FileSystem(AwsS3Adapter(bucketName))
@@ -27,12 +29,17 @@ class FileSystem(val adapter: Adapter) {
   /**
     * Read a file
     */
-  def read(path: String): Option[String] = adapter.read(path)
+  def read(path: String): Option[InputStream] = adapter.read(path)
 
   /**
     * Get an Iterator of strings. Equivalent to get lines in a Source
     */
-  def readStream(path: String): Iterator[String] = adapter.readStream(path)
+  def readAsIterator(path: String): Option[Iterator[String]] = adapter.readAsIterator(path)
+
+  /**
+    * Get an Iterator of strings. Equivalent to get lines in a Source
+    */
+  def readAsString(path: String): Option[String] = adapter.readAsString(path)
 
   /**
     * List contents of a directory
@@ -52,7 +59,7 @@ class FileSystem(val adapter: Adapter) {
   /**
     * Write a new file
     */
-  def write(path: String, contents: Iterator[String]): Boolean = adapter.write(path, contents)
+  def write(path: String, contents: Iterator[Byte]): Boolean = adapter.write(path, contents)
 
   /**
     * Update an existing file
