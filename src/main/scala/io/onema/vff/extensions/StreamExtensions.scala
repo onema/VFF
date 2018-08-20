@@ -41,16 +41,4 @@ object StreamExtensions {
 
     def toByteArray : Array[Byte] = inputStream.bytes.toArray
   }
-
-  implicit class IteratorExtensions(iterator: Iterator[String]) {
-
-    def toInputStream: InputStream = {
-      new SequenceInputStream({
-        val i: Iterator[ByteArrayInputStream] = iterator.map((s: String) => {
-          new ByteArrayInputStream(s.getBytes("UTF-8"))
-        })
-        i.asJavaEnumeration
-      })
-    }
-  }
 }
