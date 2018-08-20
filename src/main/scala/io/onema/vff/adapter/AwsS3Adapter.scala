@@ -98,7 +98,7 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
     val stream: InputStream = new ByteArrayInputStream(contents.toArray)
     val request = new PutObjectRequest(bucketName, path.ltrim, stream, new ObjectMetadata())
     Try(s3.putObject(request)) match {
-      case Success(response) =>
+      case Success(_) =>
         log.debug(s"File successfully uploaded to $bucketName with key $path")
         true
       case Failure(ex) =>
@@ -123,12 +123,12 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
     * Rename a file
     */
   override def rename(path: String, newPath: String): Boolean = {
-    try {
+    Try {
       s3.copyObject(bucketName, path.ltrim, bucketName, newPath.ltrim)
       s3.deleteObject(bucketName, path.ltrim)
-      true
-    } catch {
-      case ex: Exception =>
+    } match {
+      case Success(_) => true
+      case Failure(ex) =>
         log.debug(s"Unable to rename file $path to $newPath. Exception $ex")
         false
     }

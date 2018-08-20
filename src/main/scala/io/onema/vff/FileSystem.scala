@@ -64,6 +64,11 @@ class FileSystem(val adapter: Adapter) {
   /**
     * Update an existing file
     */
+  def update(path: String, resource: Iterator[Byte]): Boolean = adapter.update(path, resource)
+
+  /**
+    * Update an existing file
+    */
   def update(path: String, resource: String): Boolean = adapter.update(path, resource)
 
   /**
