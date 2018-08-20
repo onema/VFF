@@ -11,18 +11,16 @@
 
 package io.onema.vff.adapter
 
-import java.io.{ByteArrayInputStream, InputStream, OutputStream, SequenceInputStream}
+import java.io.{ByteArrayInputStream, InputStream}
 
+import com.amazonaws.AmazonClientException
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest}
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import com.typesafe.scalalogging.Logger
-import io.onema.vff.extensions.StreamExtensions._
 import io.onema.vff.extensions.StringExtensions._
 
 import scala.collection.JavaConverters._
-import scala.io.BufferedSource
-import scala.io.Source.fromInputStream
 import scala.util.{Failure, Success, Try}
 
 
@@ -67,12 +65,12 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
     if(has(path.ltrim)) {
       Try(s3.getObject(bucketName, path.ltrim).getObjectContent) match {
         case Success(result) =>
-          return Option(result)
-        case Failure(ex) =>
+          Option(result)
+        case Failure(ex: AmazonClientException) =>
           log.debug(s"Unable to read file $path. Exception $ex")
+          throw ex
       }
-    }
-    None
+    } else None
   }
 
   /**
