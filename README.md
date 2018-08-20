@@ -1,8 +1,9 @@
 Virtual File Framework (VFF)
 ============================
-![CodeBuild Badge](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidm0yYnR4Nys0emNZZSsrU0M4eGdIK0NsVkVDS2tnWTFmdFVONERrS20vUmMwcndzVVpCdVBGZngwa2JwaUN4WnlMUWlZd0RlanZLb243V20rd0pvRVNnPSIsIml2UGFyYW1ldGVyU3BlYyI6Ind5M3ZFK2xzcXh6MUZ5eVEiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+[![CodeBuild Badge](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidm0yYnR4Nys0emNZZSsrU0M4eGdIK0NsVkVDS2tnWTFmdFVONERrS20vUmMwcndzVVpCdVBGZngwa2JwaUN4WnlMUWlZd0RlanZLb243V20rd0pvRVNnPSIsIml2UGFyYW1ldGVyU3BlYyI6Ind5M3ZFK2xzcXh6MUZ5eVEiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://console.aws.amazon.com/codebuild/home?region=us-east-1#/projects/vff/view)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3e8dec3ddf8b4728b7e1cebae9fba8e6)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=onema/VFF&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/3e8dec3ddf8b4728b7e1cebae9fba8e6)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=onema/VFF&utm_campaign=Badge_Coverage)
+[![LICENSE](https://img.shields.io/badge/license-Apache--2.0-blue.svg?longCache=true&style=flat-square)](LICENSE)
 
 A File System abstraction for scala inspired by [FlySystem](https://flysystem.thephpleague.com/docs/).
 
