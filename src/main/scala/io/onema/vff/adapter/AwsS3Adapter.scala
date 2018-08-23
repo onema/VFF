@@ -13,7 +13,6 @@ package io.onema.vff.adapter
 
 import java.io.{ByteArrayInputStream, InputStream}
 
-import com.amazonaws.AmazonClientException
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest}
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
@@ -66,7 +65,7 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
       Try(s3.getObject(bucketName, path.ltrim).getObjectContent) match {
         case Success(result) =>
           Option(result)
-        case Failure(ex: AmazonClientException) =>
+        case Failure(ex) =>
           log.debug(s"Unable to read file $path. Exception $ex")
           throw ex
       }
@@ -110,7 +109,7 @@ class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
     */
   override def update(path: String, contents: Iterator[Byte]): Boolean = {
     if(has(path.ltrim)) {
-      write(path.ltrim, contents)
+      write(path, contents)
     } else {
       log.debug(s"Unable to update file. The fiel $path does not exist in $bucketName")
       false
