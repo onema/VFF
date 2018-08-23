@@ -4,9 +4,9 @@ organization := "io.onema"
 
 name := "vff"
 
-version := "0.4.0"
+version := "0.5.0-SNAPSHOT"
 
-scalaVersion := "2.12.4"
+scalaVersion := "2.12.5"
 
 libraryDependencies ++= {
   Seq(
@@ -23,31 +23,29 @@ libraryDependencies ++= {
   )
 }
 // Maven Central Repo boilerplate configuration
-//pomIncludeRepository := { _ => false }
-//licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
-//homepage := Some(url("https://github.com/onema/JsonExtensions"))
-//scmInfo := Some(
-//  ScmInfo(
-//    url("https://github.com/onema/vff"),
-//    "scm:git@github.com:onema/VFF.git"
-//  )
-//)
-//developers := List(
-//  Developer(
-//    id    = "onema",
-//    name  = "Juan Manuel Torres",
-//    email = "software@onema.io",
-//    url   = url("https://github.com/onema/")
-//  )
-//)
-//publishMavenStyle := true
-//publishTo := {
-//  val nexus = "https://oss.sonatype.org/"
-//  if (isSnapshot.value)
-//    Some("snapshots" at nexus + "content/repositories/snapshots")
-//  else
-//    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-//}
-//publishArtifact in Test := false
-
-publishTo := Some("Onema Snapshots" at "s3://s3-us-east-1.amazonaws.com/ones-deployment-bucket/snapshots")
+pomIncludeRepository := { _ => false }
+licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
+homepage := Some(url("https://github.com/onema/JsonExtensions"))
+scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/onema/vff"),
+    "scm:git@github.com:onema/VFF.git"
+  )
+)
+developers := List(
+  Developer(
+    id    = "onema",
+    name  = "Juan Manuel Torres",
+    email = "software@onema.io",
+    url   = url("https://github.com/onema/")
+  )
+)
+publishMavenStyle := true
+publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value)
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+}
+publishArtifact in Test := false

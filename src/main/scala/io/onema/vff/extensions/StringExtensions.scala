@@ -11,9 +11,12 @@
 
 package io.onema.vff.extensions
 
+import java.io.{ByteArrayInputStream, InputStream}
+
 object StringExtensions {
-  implicit class TrimString(path: String) {
-    def ltrim: String = path.stripPrefix("/").trim
-    def rtrim: String = path.stripSuffix("/").trim
+  implicit class TrimString(str: String) {
+    def ltrim: String = str.stripPrefix("/").trim
+    def rtrim: String = str.stripSuffix("/").trim
+    def toInputStream: InputStream = new ByteArrayInputStream(str.getBytes())
   }
 }
