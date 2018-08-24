@@ -14,8 +14,9 @@ Currently two adapters are provided:
 ## Getting started
 
 ### Install
+for the latest version please visit [maven.org](https://search.maven.org/search?q=a:vff_2.12)
 ```
-libraryDependencies += "io.onema" % "vff_2.12" % "0.3.0"
+libraryDependencies += "io.onema" % "vff_2.12" % "0.5.0"
 ```
 
 ### Create a file system object
