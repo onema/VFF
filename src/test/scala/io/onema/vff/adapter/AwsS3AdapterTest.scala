@@ -59,7 +59,6 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
 
     // Arrange
     val content: String = "foo bar baz"
-    val request = new PutObjectRequest(bucketName, path01, content.toInputStream, new ObjectMetadata())
     val  clientMock = mock[AmazonS3]
     addPutObjectRequest(
       client = clientMock,
@@ -221,6 +220,18 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     result should be (false)
   }
 
+  "Has" should "return false if an exception is thrown" in {
+
+    // Arrange - Act
+    val  clientMock = mock[AmazonS3]
+    (clientMock.doesObjectExist _).expects(*, *).throws(new RuntimeException)
+    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val result = fs.has(path01)
+
+    // Assert
+    result should be (false)
+  }
+
   "Copy" should "duplicate a file" in {
 
     // Arrange
@@ -252,6 +263,21 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     path02Contents should be (path01Contents)
   }
 
+  "Copy" should "return false if an exception is thrown" in {
+
+    // Arrange
+    val content = "foo bar baz"
+    val  clientMock = mock[AmazonS3]
+    (clientMock.copyObject(_: String, _: String, _: String, _: String)).expects(*, *, *, *).throws(new AmazonS3Exception(""))
+    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+
+    // Act
+    val result = fs.copy(path01, path02)
+
+    // Assert
+    result should be (false)
+  }
+
   "Write" should "add content to a new file" in {
 
     // Arrange
@@ -277,6 +303,21 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     path01Contents should be ("foo bar baz")
   }
 
+  "Write" should "return false if an exception is thrown" in {
+
+    // Arrange
+    val content = "foo bar baz"
+    val  clientMock = mock[AmazonS3]
+    (clientMock.putObject(_: PutObjectRequest)).expects(*).throws(new AmazonS3Exception(""))
+    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+
+    // Act
+    val result = fs.write(path01, content)
+
+    // Assert
+    result should be (false)
+  }
+
   "Read" should "get the contents from an existing file" in {
 
     // Arrange
@@ -299,6 +340,34 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
 
     // Assert
     path01Contents.getOrElse("This is not the correct String") should be ("foo bar baz")
+  }
+
+  "Read" should "rethrow exception if an exception is thrown" in {
+
+    // Arrange
+    val content = "foo bar baz"
+    val  clientMock = mock[AmazonS3]
+    (clientMock.getObject(_: String, _: String)).expects(*, *).throws(new AmazonS3Exception(""))
+    addDoesObjectExist(clientMock, result = true)
+    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+
+    // Act - Assert
+    intercept[AmazonS3Exception] {val result = fs.read(path01)}
+  }
+
+  "Read" should "return None if file does not exist" in {
+
+    // Arrange
+    val content = "foo bar baz"
+    val  clientMock = mock[AmazonS3]
+    addDoesObjectExist(clientMock, result = false)
+    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+
+    // Act
+    val result = fs.read(path01)
+
+    // Assert
+    result should be (None)
   }
 
   "Read Iterator" should "get and iterator for the contents of an existing file" in {

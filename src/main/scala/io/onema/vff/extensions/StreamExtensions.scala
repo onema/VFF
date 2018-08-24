@@ -11,11 +11,10 @@
 
 package io.onema.vff.extensions
 
-import java.io.{ByteArrayInputStream, InputStream, SequenceInputStream}
+import java.io.InputStream
 
 import better.files._
 
-import scala.collection.JavaConverters._
 import scala.io.{BufferedSource, Source}
 
 object StreamExtensions {

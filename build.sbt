@@ -4,9 +4,9 @@ organization := "io.onema"
 
 name := "vff"
 
-version := "0.5.0-SNAPSHOT"
+version := "0.5.0"
 
-scalaVersion := "2.12.5"
+scalaVersion := "2.12.6"
 
 libraryDependencies ++= {
   Seq(
