@@ -25,7 +25,7 @@ libraryDependencies ++= {
 // Maven Central Repo boilerplate configuration
 pomIncludeRepository := { _ => false }
 licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"))
-homepage := Some(url("https://github.com/onema/JsonExtensions"))
+homepage := Some(url("https://github.com/onema/VFF"))
 scmInfo := Some(
   ScmInfo(
     url("https://github.com/onema/vff"),
