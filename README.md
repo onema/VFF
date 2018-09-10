@@ -1,6 +1,6 @@
 Virtual File Framework (VFF)
 ============================
-[![CodeBuild Badge](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoicG5UTVFwZ3JHUzFuS1ZidGxMeDJwT09pTldHMWZndG5CcTc0S0dBcFZjYlVSL0ZVdGdkUHREelVXbG0yV1RYbDNLdlhJZFk2S1J4N1RkcW1yRkpWbWQ4PSIsIml2UGFyYW1ldGVyU3BlYyI6IkpUL1FUY2dSMkM3bktWNmUiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://console.aws.amazon.com/codebuild/home?region=us-east-1#/projects/vff/view)
+[![CodeBuild Badge](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidktrcVFjOVJsUmR2K0dFdm9pRmhzSmZ3NVIzTG9RVW5oKzBqOHlSSVkwRWxCY0lEM1ZtdENScHEvWUZKMGJmZnlER2pqZWsyemdrK2tpRGtPdWowOTJVPSIsIml2UGFyYW1ldGVyU3BlYyI6InF5RmdJZEZWRmhNb21hQzUiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://console.aws.amazon.com/codebuild/home?region=us-east-1#/projects/VirtualFF/view)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3e8dec3ddf8b4728b7e1cebae9fba8e6)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=onema/VFF&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/3e8dec3ddf8b4728b7e1cebae9fba8e6)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=onema/VFF&utm_campaign=Badge_Coverage)
 [![LICENSE](https://img.shields.io/badge/license-Apache--2.0-blue.svg?longCache=true&style=flat-square)](LICENSE)
