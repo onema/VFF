@@ -1,10 +1,9 @@
 version: 0.2
 
 phases:
-  install:
-    commands:
-    - wget -o /usr/local/bin/submit_coverage https://s3.amazonaws.com/foobarbaz.com/submit_coverage.sh
-    - chmod +x /usr/local/bin/submit_coverage
+  commands:
+  - wget https://s3.amazonaws.com/foobarbaz.com/submit_coverage.sh
+  - chmod +x submit_coverage.sh
 
   pre_build:
     commands:
@@ -14,12 +13,11 @@ phases:
 
   build:
     commands:
-
     - echo Testing JsonExtensions on `date`
     - sbt clean coverage test
 
     - echo Submit coverage report to Codacy
-    - submit_coverage
+    - ./submit_coverage.sh
 
   post_build:
     commands:
