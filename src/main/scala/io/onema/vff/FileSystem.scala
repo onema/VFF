@@ -44,7 +44,7 @@ class FileSystem(val adapter: Adapter) {
   /**
     * List contents of a directory
     */
-  def listContents(directory: String, recursive: Boolean): Seq[String] = adapter.listContents(directory, recursive)
+  def listContents(directory: String, recursive: Boolean = false): Seq[String] = adapter.listContents(directory, recursive)
 
   /**
     * Get file's size in KB
