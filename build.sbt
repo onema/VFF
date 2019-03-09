@@ -4,18 +4,17 @@ organization := "io.onema"
 
 name := "vff"
 
-version := "0.5.2"
+version := "0.6.0-SNAPSHOT"
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.12.8"
 
 libraryDependencies ++= {
   Seq(
-    "com.amazonaws"               % "aws-java-sdk-s3"   % "1.11.280",
+    "com.amazonaws"               % "aws-java-sdk-s3"   % "1.11.515",
     "com.github.pathikrit"        %% "better-files"     % "3.6.0",
 
-    // Logging
+  // Logging
     "com.typesafe.scala-logging"  %% "scala-logging"    % "3.7.2",
-    "ch.qos.logback"              % "logback-classic"   % "1.1.7",
 
     // Testing
     "org.scalatest"               % "scalatest_2.12"                      % "3.0.4"   % "test",
