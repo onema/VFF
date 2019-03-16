@@ -4,7 +4,7 @@
   * please view the LICENSE file that was distributed
   * with this source code.
   *
-  * copyright (c) 2018, Juan Manuel Torres (http://onema.io)
+  * copyright (c) 2018 - 2019,Juan Manuel Torres (http://onema.io)
   *
   * @author Juan Manuel Torres <software@onema.io>
   */
@@ -20,25 +20,25 @@ import com.typesafe.scalalogging.Logger
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object AwsS3Async {
-  def apply(bucketName: String): AwsS3Async = {
+object S3AdapterAsync {
+  def apply(bucketName: String): S3AdapterAsync = {
     val s3 = AmazonS3ClientBuilder.defaultClient()
-    new AwsS3Async(s3, bucketName)
+    new S3AdapterAsync(s3, bucketName)
   }
 
-  def apply(bucketName: String, region: Regions): AwsS3Async = {
+  def apply(bucketName: String, region: Regions): S3AdapterAsync = {
     val s3 = AmazonS3ClientBuilder.standard()
       .withRegion(region)
       .build()
-    new AwsS3Async(s3, bucketName)
+    new S3AdapterAsync(s3, bucketName)
   }
 }
 
-class AwsS3Async(val s3Client: AmazonS3, bucketName: String) extends AdapterAsync {
+class S3AdapterAsync(val s3Client: AmazonS3, bucketName: String) extends AdapterAsync {
 
   //--- Fields ---
   protected val log = Logger("vff")
-  private val s3 = new AwsS3Adapter(s3Client, bucketName)
+  private val s3 = new S3Adapter(s3Client, bucketName)
 
   //--- Methods ---
 

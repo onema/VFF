@@ -4,7 +4,7 @@
   * please view the LICENSE file that was distributed
   * with this source code.
   *
-  * copyright (c) 2018, Juan Manuel Torres (http://onema.io)
+  * copyright (c) 2018 - 2019,Juan Manuel Torres (http://onema.io)
   *
   * @author Juan Manuel Torres <software@onema.io>
   */
@@ -12,17 +12,17 @@ package io.onema.vff.adapter
 
 import java.util
 
+import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model._
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3Client}
+import io.onema.extensions.StreamExtensions._
+import io.onema.extensions.StringExtensions._
 import io.onema.vff.FileSystem
-import io.onema.vff.adapter.AwsS3AdapterTest.TestResult
-import io.onema.vff.extensions.StreamExtensions._
-import io.onema.vff.extensions.StringExtensions._
+import io.onema.vff.adapter.S3AdapterTest.TestResult
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
 
-class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {
+class S3AdapterTest extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {
 
 //  val fs = new FileSystem(AwsS3Adapter("ones-test-bucket"))
   val path01 = "/tmp/vff/test.txt"
@@ -71,7 +71,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
       response = new PutObjectResult
     )
     addDoesObjectExist(clientMock, result = true)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
     fs.write(path01, "")
 
     // Act
@@ -89,7 +89,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     val content: String = "foo bar baz"
     val  clientMock = mock[AmazonS3]
     addDoesObjectExist(clientMock, result = false)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
 
     // Act
     val result = fs.update("/tmp/vff/test.txt", content)
@@ -107,7 +107,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
       .expects(bucketName, path01.ltrim)
       .once()
     addDoesObjectExist(clientMock, result = true)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
     fs.write(path01, "")
 
     // Act
@@ -123,7 +123,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     val  clientMock = mock[AmazonS3]
     (clientMock.deleteObject(_: String, _: String)).expects(*, *).never()
     addDoesObjectExist(clientMock, result = false)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
     val result = fs.delete("/tmp/vff/test.txt")
 
     // Assert
@@ -143,7 +143,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
       response = new PutObjectResult,
       times = 5
     )
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
     fs.write(results(0), "")
     fs.write(results(1), "")
     fs.write(results(2), "")
@@ -172,7 +172,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
       response = new PutObjectResult,
       times = 5
     )
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
     fs.write(path01, "")
     fs.write(path02, "")
     fs.write(path03, "")
@@ -198,7 +198,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
       validationFunc = { x => x.getInputStream.mkString == ""},
       response = new PutObjectResult
     )
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
     fs.write(path01, "")
 
     // Act
@@ -213,7 +213,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     // Arrange - Act
     val  clientMock = mock[AmazonS3]
     addDoesObjectExist(clientMock, result = false)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
     val result = fs.has(path01)
 
     // Assert
@@ -225,7 +225,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     // Arrange - Act
     val  clientMock = mock[AmazonS3]
     (clientMock.doesObjectExist _).expects(*, *).throws(new RuntimeException)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
     val result = fs.has(path01)
 
     // Assert
@@ -250,7 +250,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     response2.setObjectContent(content.toInputStream)
     addGetObjectRequest(clientMock, path01.ltrim,  response1)
     addGetObjectRequest(clientMock, path02.ltrim,  response2)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
 
     // Act
     fs.write(path01, content)
@@ -269,7 +269,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     val content = "foo bar baz"
     val  clientMock = mock[AmazonS3]
     (clientMock.copyObject(_: String, _: String, _: String, _: String)).expects(*, *, *, *).throws(new AmazonS3Exception(""))
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
 
     // Act
     val result = fs.copy(path01, path02)
@@ -292,7 +292,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     response.setObjectContent(content.toInputStream)
     addGetObjectRequest(clientMock, path01.ltrim, response)
     addDoesObjectExist(clientMock, result = true)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
 
     // Act
     val result = fs.write(path01, content)
@@ -309,7 +309,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     val content = "foo bar baz"
     val  clientMock = mock[AmazonS3]
     (clientMock.putObject(_: PutObjectRequest)).expects(*).throws(new AmazonS3Exception(""))
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
 
     // Act
     val result = fs.write(path01, content)
@@ -332,7 +332,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     response.setObjectContent(content.toInputStream)
     addGetObjectRequest(clientMock, path01.ltrim, response)
     addDoesObjectExist(clientMock, result = true)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
 
     // Act
     val result = fs.write(path01, content)
@@ -349,7 +349,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     val  clientMock = mock[AmazonS3]
     (clientMock.getObject(_: String, _: String)).expects(*, *).throws(new AmazonS3Exception(""))
     addDoesObjectExist(clientMock, result = true)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
 
     // Act - Assert
     intercept[AmazonS3Exception] {val result = fs.read(path01)}
@@ -361,7 +361,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     val content = "foo bar baz"
     val  clientMock = mock[AmazonS3]
     addDoesObjectExist(clientMock, result = false)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
 
     // Act
     val result = fs.read(path01)
@@ -384,7 +384,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
     response.setObjectContent(content.toInputStream)
     addGetObjectRequest(clientMock, path01.ltrim, response)
     addDoesObjectExist(clientMock, result = true)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
     fs.write(path01, content)
 
     // Act
@@ -410,7 +410,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
       .once()
     addDoesObjectExist(clientMock, result = false)
     addDoesObjectExist(clientMock, result = true)
-    val fs = new FileSystem(new AwsS3Adapter(clientMock, bucketName))
+    val fs = new FileSystem(new S3Adapter(clientMock, bucketName))
     fs.write(path01, "")
 
     // Act
@@ -425,7 +425,7 @@ class AwsS3AdapterTest extends FlatSpec with Matchers with MockFactory with Befo
 
 }
 
-object AwsS3AdapterTest {
+object S3AdapterTest {
   class TestResult(val results: Seq[String]) extends ListObjectsV2Result {
     override def getObjectSummaries: util.List[S3ObjectSummary] = {
       val one = new S3ObjectSummary()

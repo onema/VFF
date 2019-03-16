@@ -4,7 +4,7 @@
   * please view the LICENSE file that was distributed
   * with this source code.
   *
-  * copyright (c) 2018, Juan Manuel Torres (http://onema.io)
+  * copyright (c) 2018 - 2019,Juan Manuel Torres (http://onema.io)
   *
   * @author Juan Manuel Torres <software@onema.io>
   */
@@ -12,7 +12,7 @@ package io.onema.vff.adapter
 
 import better.files.File
 import io.onema.vff.FileSystem
-import io.onema.vff.extensions.StreamExtensions._
+import io.onema.extensions.StreamExtensions._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
