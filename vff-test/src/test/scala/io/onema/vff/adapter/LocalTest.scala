@@ -235,7 +235,7 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     fs.delete(imagePath03)
   }
 
-  "Async Adapter" should "do things asynchronously" in {
+  "Async Adapter" should "create files with in time limit" in {
     // Arrange
     val fs = FileSystemAsync()
     val uuid = UUID.randomUUID().toString
@@ -247,7 +247,7 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     val results: Seq[Boolean] = time{
       (0 to 1000).map { i =>
         fs.write(s"$dir/$i", i.toString)
-      }.map(Await.result(_, 5000.millis))
+      }.map(Await.result(_, 1000.millis))
     }
 
     // Assert
