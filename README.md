@@ -8,15 +8,15 @@ Virtual File Framework (VFF)
 A File System abstraction for scala inspired by [FlySystem](https://flysystem.thephpleague.com/docs/).
 
 Currently two adapters are provided:
-* Local
-* S3
+* Local (included with VFF)
+* S3 (as of version 0.6.0 must be installed separately `"io.onema" % "vff-s3-adapter_2.12" % "VERSION"`)
 
 ## Getting started
 
 ### Install
 for the latest version please visit [maven.org](https://search.maven.org/search?q=a:vff_2.12)
 ```
-libraryDependencies += "io.onema" % "vff_2.12" % "0.5.0"
+libraryDependencies += "io.onema" % "vff_2.12" % "LATEST_VERSION"
 ```
 
 ### Create a file system object
@@ -75,11 +75,43 @@ Using the `InputStream` methods and extensions provided in the  you can quickly 
 `read` method into other types
 
 ```scala
-import io.onema.vff.extensions.StreamExtension._
+import io.onema.extensions.StreamExtension._
 
 val data = fs.read("path/to/file.txt")
 val str: String = data.mkString
 val byteIter: Iterator[Byte] = data.toBytes
 val byteArray: Array[Byte] = data.toByteArray
 val lines: Iterator[String] = data.getLines
+```
+
+## Async API 
+As of version `0.6.0` an Async file system is provided, the method names remain the same but all calls async and return a scala Future `Future[ReturnType]`.
+Implementations for each of the adapters are provided. 
+
+Example:
+
+```scala
+import java.util.UUID
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import io.onema.vff.FileSystemAsync
+
+    // Arrange
+    val fs = FileSystemAsync()
+    val uuid = UUID.randomUUID().toString
+    val dir = s"/tmp/$uuid"
+    
+    // create a single file, this will not be part of the test
+    println(dir)
+    Await.result(fs.write(s"$dir/tmp", "0"), 500.millis)
+
+    // Act
+    val results: Seq[Boolean] = (0 to 100000).map { i =>
+      fs.write(s"$dir/$i", i.toString)
+    }.map(Await.result(_, 5000.millis))
+
+    // Assert
+    results.foreach(x => {
+      x should be (true)
+    })
 ```

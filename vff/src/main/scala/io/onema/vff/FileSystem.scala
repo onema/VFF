@@ -4,20 +4,19 @@
   * please view the LICENSE file that was distributed
   * with this source code.
   *
-  * copyright (c) 2018, Juan Manuel Torres (http://onema.io)
+  * copyright (c) 2018 - 2019,Juan Manuel Torres (http://onema.io)
   *
   * @author Juan Manuel Torres <software@onema.io>
   */
 
 package io.onema.vff
 
-import io.onema.vff.adapter.{Adapter, AwsS3Adapter, Local}
+import io.onema.vff.adapter.{Adapter, Local}
 
 import java.io._
 
 object FileSystem {
   def apply(): FileSystem = new FileSystem(new Local)
-  def s3(bucketName: String): FileSystem = new FileSystem(AwsS3Adapter(bucketName))
 }
 
 class FileSystem(val adapter: Adapter) {

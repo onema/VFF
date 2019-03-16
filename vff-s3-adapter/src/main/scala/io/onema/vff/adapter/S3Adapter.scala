@@ -4,7 +4,7 @@
   * please view the LICENSE file that was distributed
   * with this source code.
   *
-  * copyright (c) 2018, Juan Manuel Torres (http://onema.io)
+  * copyright (c) 2018 - 2019,Juan Manuel Torres (http://onema.io)
   *
   * @author Juan Manuel Torres <software@onema.io>
   */
@@ -17,7 +17,7 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest}
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import com.typesafe.scalalogging.Logger
-import io.onema.vff.extensions.StringExtensions._
+import io.onema.extensions.StringExtensions._
 
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
@@ -25,21 +25,21 @@ import scala.util.{Failure, Success, Try}
 
 
 
-object AwsS3Adapter {
-  def apply(bucketName: String): AwsS3Adapter = {
+object S3Adapter {
+  def apply(bucketName: String): S3Adapter = {
     val s3 = AmazonS3ClientBuilder.defaultClient()
-    new AwsS3Adapter(s3, bucketName)
+    new S3Adapter(s3, bucketName)
   }
 
-  def apply(bucketName: String, region: Regions): AwsS3Adapter = {
+  def apply(bucketName: String, region: Regions): S3Adapter = {
     val s3 = AmazonS3ClientBuilder.standard()
       .withRegion(region)
       .build()
-    new AwsS3Adapter(s3, bucketName)
+    new S3Adapter(s3, bucketName)
   }
 }
 
-class AwsS3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
+class S3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
 
   //--- Fields ---
   protected val log = Logger("vff")
