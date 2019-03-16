@@ -9,10 +9,10 @@ ThisBuild / scalaVersion := "2.12.8"
 val awsSdkVersion = "1.11.515"
 val extensionsVersion = "0.1.0"
 
-lazy val extensions = (project in file("."))
+lazy val vff = (project in file("."))
   .settings(skip in publish := true)
   .aggregate(vffCore, vffS3Adapter, vffTest)
-publishArtifact in extensions := false
+publishArtifact in vff := false
 
 lazy val vffCore = (project in file("vff"))
   .settings(
@@ -22,6 +22,7 @@ lazy val vffCore = (project in file("vff"))
       Seq(
         "io.onema"             %% "stream-extensions" % extensionsVersion,
         "io.onema"             %% "string-extensions" % extensionsVersion,
+        "com.github.pathikrit" %% "better-files"      % "3.7.1",
 
         // Logging
         "com.typesafe.scala-logging"  %% "scala-logging"    % "3.7.2",

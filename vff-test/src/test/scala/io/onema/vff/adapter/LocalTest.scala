@@ -10,11 +10,17 @@
   */
 package io.onema.vff.adapter
 
+import java.util.UUID
+
 import better.files.File
-import io.onema.vff.FileSystem
 import io.onema.extensions.StreamExtensions._
+import io.onema.vff.adapter.TestUtils._
+import io.onema.vff.{FileSystem, FileSystemAsync}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 
 class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {
@@ -228,4 +234,42 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     fs.delete(imagePath02)
     fs.delete(imagePath03)
   }
+
+  "Async Adapter" should "do things asynchronously" in {
+    // Arrange
+    val fs = FileSystemAsync()
+    val uuid = UUID.randomUUID().toString
+    val dir = s"/tmp/$uuid"
+    println(dir)
+    Await.result(fs.write(s"$dir/tmp", "0"), 500.millis)
+
+    // Act
+    val results: Seq[Boolean] = time{
+      (0 to 1000).map { i =>
+        fs.write(s"$dir/$i", i.toString)
+      }.map(Await.result(_, 5000.millis))
+    }
+
+    // Assert
+    results.foreach(_ should be (true))
+  }
+
+//  "sync Adapter" should "do things synchronously" in {
+//    // Arrange
+//    val fs = FileSystem()
+//    val uuid = UUID.randomUUID().toString
+//    val dir = s"/tmp/$uuid"
+//    println(dir)
+//    fs.write(s"$dir/tmp", "0")
+//
+//    // Act
+//    val results: Seq[Boolean] = time{
+//      (0 to 1000).map { i =>
+//        fs.write(s"$dir/$i", i.toString)
+//      }
+//    }
+//
+//    // Assert
+//    results.foreach(_ should be (true))
+//  }
 }

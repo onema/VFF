@@ -13,10 +13,14 @@ package io.onema.vff
 
 import java.io._
 
-import io.onema.vff.adapter.AdapterAsync
+import io.onema.vff.adapter.{AdapterAsync, LocalAsync}
 
 import scala.concurrent.Future
 
+
+object FileSystemAsync {
+  def apply(): FileSystemAsync = new FileSystemAsync(new LocalAsync)
+}
 
 class FileSystemAsync(val adapter: AdapterAsync) {
   /**
