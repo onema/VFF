@@ -10,27 +10,25 @@
   */
 package io.onema.vff.adapter
 
-import java.util.UUID
-
 import better.files.File
 import io.onema.extensions.StreamExtensions._
+import io.onema.vff.FileSystemAsync
 import io.onema.vff.adapter.TestUtils._
-import io.onema.vff.{FileSystem, FileSystemAsync}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 
 
-class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {
+class LocalAsyncTest extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {
 
-  private val fs = new FileSystem(new Local)
-  private val path01 = "/tmp/vff/test.txt"
-  private val path02 = "/tmp/vff/foo.txt"
-  private val path03 = "/tmp/vff/bar.txt"
-  private val path04 = "/tmp/vff/BAZ/baz.txt"
-  private val path05 = "/tmp/vff/BLAH/BLAH/blah.txt"
+  private val fs = FileSystemAsync()
+  private val directory = "/tmp/vff"
+  private val path01 = s"$directory/test.txt"
+  private val path02 = s"$directory/foo.txt"
+  private val path03 = s"$directory/bar.txt"
+  private val path04 = s"$directory/BAZ/baz.txt"
+  private val path05 = s"$directory/BLAH/BLAH/blah.txt"
   private val resourcesPath = getClass.getResource("/").getPath
   private val imagePath01 = s"${resourcesPath}robot.png"
   private val imagePath02 = s"${resourcesPath}robo-copy.png"
@@ -48,10 +46,10 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     val file = File(path01).createIfNotExists(createParents = true)
 
     // Act
-    val result = fs.update("/tmp/vff/test.txt", content)
+    val future = fs.update("/tmp/vff/test.txt", content)
 
     // Assert
-    result should be (true)
+    future.result() should be (true)
     file.contentAsString should be (content)
   }
 
@@ -61,10 +59,10 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     val content: String = "foo bar baz"
 
     // Act
-    val result = fs.update("/tmp/vff/test.txt", content)
+    val future = fs.update("/tmp/vff/test.txt", content)
 
     // Assert
-    result should be (false)
+    future.result() should be (false)
   }
 
   "A file Delete" should "remove the file from the local file system" in {
@@ -73,20 +71,20 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     val file = File(path01).createIfNotExists(createParents = true)
 
     // Act
-    val result = fs.delete("/tmp/vff/test.txt")
+    val future = fs.delete("/tmp/vff/test.txt")
 
     // Assert
-    result should be (true)
+    future.result() should be (true)
     file.exists should be (false)
   }
 
   "A file Delete a non existing file" should "return false" in {
 
     // Arrange - Act
-    val result = fs.delete("/tmp/vff/test.txt")
+    val future = fs.delete("/tmp/vff/test.txt")
 
     // Assert
-    result should be (false)
+    future.result() should be (false)
   }
 
   "ListContents in a directory" should "return a list of all the files" in {
@@ -100,10 +98,10 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     File(path05).createIfNotExists(createParents = true)
 
     // Act
-    val result = fs.adapter.listContents("/tmp/vff")
+    val future = fs.adapter.listContents("/tmp/vff")
 
     // Assert
-    result.foreach(x => {
+    future.result().foreach(x => {
       results.contains(x) should be (true)
     })
   }
@@ -119,10 +117,10 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     File(path05).createIfNotExists(createParents = true)
 
     // Act
-    val result = fs.listContents("/tmp/vff", recursive = true)
+    val future = fs.listContents("/tmp/vff", recursive = true)
 
     // Assert
-    result.foreach(x => {
+    future.result().foreach(x => {
       results.contains(x) should be (true)
     })
   }
@@ -133,19 +131,19 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     File(path01).createIfNotExists(createParents = true)
 
     // Act
-    val result = fs.has(path01)
+    val future = fs.has(path01)
 
     // Assert
-    result should be (true)
+    future.result() should be (true)
   }
 
   "Has" should "return false if a file does not exist" in {
 
     // Arrange - Act
-    val result = fs.has(path01)
+    val future = fs.has(path01)
 
     // Assert
-    result should be (false)
+    future.result() should be (false)
   }
 
   "Copy" should "duplicate a file" in {
@@ -154,19 +152,20 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     fs.write(path01, "foo bar baz")
 
     // Act
-    val result = fs.copy(path01, path02)
-    val path01Contents = fs.read(path01).get.mkString
-    val path02Contents = fs.read(path02).get.mkString
+    val future = fs.copy(path01, path02)
+    val path01Contents = fs.read(path01).result().get.mkString
+    val path02Contents = fs.read(path02).result().get.mkString
 
     // Assert
-    result should be (true)
+    future.result() should be (true)
     path02Contents should be (path01Contents)
   }
 
   "Write" should "add content to a new file" in {
 
     // Arrange - Act
-    val result = fs.write(path01, "foo bar baz")
+    val future = fs.write(path01, "foo bar baz")
+    val result = future.result()
     val path01Contents = File(path01).contentAsString
 
     // Assert
@@ -177,10 +176,10 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
   "Read" should "get the contents from an existing file" in {
 
     // Arrange
-    val result = fs.write(path01, "foo bar baz")
+    val future = fs.write(path01, "foo bar baz").result()
 
     // Act
-    val path01Contents = fs.read(path01).get.mkString
+    val path01Contents = fs.read(path01).result().get.mkString
 
     // Assert
     path01Contents should be ("foo bar baz")
@@ -192,10 +191,10 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     val contents =
       """"foo bar baz
          |baz bar foo"""".stripMargin
-    val result = fs.write(path01, contents)
+    fs.write(path01, contents).result()
 
     // Act
-    val path01Contents = fs.read(path01).get.getLines
+    val path01Contents = fs.read(path01).result().get.getLines
 
     // Assert
     path01Contents.next should be ("\"foo bar baz")
@@ -208,47 +207,42 @@ class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     File(path01).createIfNotExists(createParents = true)
 
     // Act
-    val result = fs.rename(path01, path02)
+    val future = fs.rename(path01, path02)
 
     // Assert
-    result should be (true)
-    fs.has(path01) should be (false)
-    fs.has(path02) should be (true)
+    future.result() should be (true)
+    fs.has(path01).result() should be (false)
+    fs.has(path02).result() should be (true)
 
   }
 
   "Image" should "be copied correctly" in {
 
     // Arrange
-    val image = fs.read(imagePath01).get
+    val image = fs.read(imagePath01).result().get
 
     // Act
-    val result = fs.write(imagePath02, image.toBytes)
+    val result = fs.write(imagePath02, image.toBytes).result()
     val copyResult = fs.copy(imagePath02, imagePath03)
 
     // Assert
     result should be (true)
-    copyResult should be (true)
-    fs.has(imagePath02) should be (true)
-    fs.has(imagePath03) should be (true)
-    fs.delete(imagePath02)
-    fs.delete(imagePath03)
+    copyResult.result() should be (true)
+    fs.has(imagePath02).result() should be (true)
+    fs.has(imagePath03).result() should be (true)
+    fs.delete(imagePath02).wait(100.millis)
+    fs.delete(imagePath03).wait(100.millis)
   }
 
-  "sync Adapter" should "do things synchronously" in {
-
+  "Async Adapter" should "create files with in time limit" in {
     // Arrange
-    val fs = FileSystem()
-    val uuid = UUID.randomUUID().toString
-    val dir = s"/tmp/$uuid"
-    println(dir)
-    fs.write(s"$dir/tmp", "0")
+    val fs = FileSystemAsync()
 
     // Act
     val results: Seq[Boolean] = time{
       (0 to 1000).map { i =>
-        fs.write(s"$dir/$i", i.toString)
-      }
+        fs.write(s"$directory/$i", i.toString)
+      }.results(1000.millis)
     }
 
     // Assert

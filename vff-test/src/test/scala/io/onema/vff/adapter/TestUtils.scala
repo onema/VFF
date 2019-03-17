@@ -12,6 +12,9 @@
 package io.onema.vff.adapter
 
 import com.typesafe.scalalogging.Logger
+import scala.concurrent.duration._
+
+import scala.concurrent.{Await, Future}
 
 object TestUtils {
   val log = Logger("testing")
@@ -21,5 +24,22 @@ object TestUtils {
     val endTime = System.nanoTime()
     println(s"Time: ${((endTime - startTime)/1000000).toFloat} ms")
     result
+  }
+
+  implicit class ResultExtensions[T](future: Future[T]) {
+    def result(duration: FiniteDuration = 1000.millis): T = {
+      Await.result(future, duration)
+    }
+    def wait(duration: FiniteDuration): Unit = Await.ready(future, duration)
+  }
+
+  implicit class ResutltsExtenstions[T](sequence: Seq[Future[T]]){
+    def awaitAll(duration: FiniteDuration = 1000.millis): Unit = {
+      sequence.foreach(Await.ready(_, duration))
+    }
+
+    def results(duration: FiniteDuration = 1000.millis): Seq[T] = {
+      sequence.map(Await.result(_, duration))
+    }
   }
 }
