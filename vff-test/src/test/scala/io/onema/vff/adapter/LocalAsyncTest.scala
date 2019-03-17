@@ -131,10 +131,10 @@ class LocalAsyncTest extends FlatSpec with Matchers with MockFactory with Before
     File(path01).createIfNotExists(createParents = true)
 
     // Act
-    val future = fs.has(path01)
+    val result = fs.has(path01).result()
 
     // Assert
-    future.result() should be (true)
+    result should be (true)
   }
 
   "Has" should "return false if a file does not exist" in {
