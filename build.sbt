@@ -4,7 +4,7 @@ import sbt.url
 ThisBuild / organization := "io.onema"
 ThisBuild / version      := "0.6.0"
 ThisBuild / scalaVersion := "2.12.8"
-//ThisBuild / parallelExecution in Test := false
+ThisBuild / parallelExecution in Test := false
 
 val awsSdkVersion = "1.11.515"
 val extensionsVersion = "0.1.0"
