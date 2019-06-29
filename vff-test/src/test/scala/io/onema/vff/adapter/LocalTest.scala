@@ -14,13 +14,10 @@ import java.util.UUID
 
 import better.files.File
 import io.onema.extensions.StreamExtensions._
+import io.onema.vff.FileSystem
 import io.onema.vff.adapter.TestUtils._
-import io.onema.vff.{FileSystem, FileSystemAsync}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
-
-import scala.concurrent.Await
-import scala.concurrent.duration._
 
 
 class LocalTest extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {

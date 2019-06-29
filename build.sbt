@@ -1,13 +1,18 @@
 import sbt.Keys.{homepage, scmInfo}
 import sbt.url
 
+lazy val scala213 = "2.13.0"
+lazy val scala212 = "2.12.8"
+lazy val scala211 = "2.11.12"
+lazy val supportedScalaVersions = List(scala213, scala212, scala211)
+
 ThisBuild / organization := "io.onema"
-ThisBuild / version      := "0.6.0"
-ThisBuild / scalaVersion := "2.12.8"
+ThisBuild / version      := "0.6.1"
+ThisBuild / scalaVersion := scala212
 ThisBuild / parallelExecution in Test := false
 
 val awsSdkVersion = "1.11.515"
-val extensionsVersion = "0.1.0"
+val extensionsVersion = "0.2.1"
 
 lazy val vff = (project in file("."))
   .settings(skip in publish := true)
@@ -18,14 +23,15 @@ lazy val vffCore = (project in file("vff"))
   .settings(
     name := "vff",
     commonPublishSettings,
+    crossScalaVersions := supportedScalaVersions,
     libraryDependencies ++= {
       Seq(
         "io.onema"             %% "stream-extensions" % extensionsVersion,
         "io.onema"             %% "string-extensions" % extensionsVersion,
-        "com.github.pathikrit" %% "better-files"      % "3.7.1",
+        "com.github.pathikrit" %% "better-files"      % "3.8.0",
 
         // Logging
-        "com.typesafe.scala-logging"  %% "scala-logging"    % "3.7.2",
+        "com.typesafe.scala-logging"  %% "scala-logging"    % "3.9.2",
       )
     }
   )
@@ -34,6 +40,7 @@ lazy val vffS3Adapter = (project in file("vff-s3-adapter"))
   .settings(
     name := "vff-s3-adapter",
     commonPublishSettings,
+    crossScalaVersions := supportedScalaVersions,
     libraryDependencies ++= {
       Seq(
        "com.amazonaws"        % "aws-java-sdk-s3"   % awsSdkVersion

@@ -77,7 +77,7 @@ class S3Adapter(val s3: AmazonS3, bucketName: String) extends Adapter {
     */
   override def listContents(directory: String, recursive: Boolean): Seq[String] = {
     val objects = s3.listObjectsV2(bucketName, directory).getObjectSummaries.asScala
-    objects.map(_.getKey)
+    objects.map(_.getKey).toSeq
   }
 
   /**
